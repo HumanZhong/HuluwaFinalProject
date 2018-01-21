@@ -37,8 +37,8 @@ public class BattleField extends JPanel
     private ArrayList badGroup=new ArrayList();
     private ArrayList goodGroup=new ArrayList();
 
-    ExecutorService executorService= Executors.newCachedThreadPool();
-
+    //ExecutorService executorService= Executors.newCachedThreadPool();
+    ExecutorService executorService;
     Replayer replayer=new Replayer(false);
     ReplayScreen currentScreen=new ReplayScreen();
     /*Picture2D pichlw0=new Picture2D("hlw0.png");
@@ -72,6 +72,10 @@ public class BattleField extends JPanel
         if (goodGroup.size()==0 || badGroup.size()==0)
         {
             state=BattleFieldState.END;
+            if (goodGroup.size()==0)
+                result=false;
+            else if (badGroup.size()==0)
+                result=true;
             return false;
         }
         else
@@ -100,8 +104,12 @@ public class BattleField extends JPanel
     public void startBattle()
     {
         state=BattleFieldState.RUN;
-        executorService.shutdownNow();
+        //replayer=new Replayer(false);
+        //replayer.removeAll();
+        //executorService.shutdownNow();
         executorService=Executors.newCachedThreadPool();
+        goodGroup=new ArrayList();
+        badGroup=new ArrayList();
         for (int i=0;i<7;i++)
         {
             String pic="hlw"+i;
@@ -219,6 +227,7 @@ public class BattleField extends JPanel
         state=BattleFieldState.REPLAYING;
         ArrayList<ReplayScreen> screens=replayer.getScreens();
         //Iterator<ReplayScreen> it=screens.iterator();
+        executorService=Executors.newCachedThreadPool();
         executorService.execute(()->{
             for (int i=0;i<screens.size();i++)
             {
@@ -288,27 +297,26 @@ public class BattleField extends JPanel
                 }
             }
         }
-        ArrayList allthings=new ArrayList();
-        allthings.addAll(goodGroup);
-        allthings.addAll(badGroup);
-        for (int i=0;i<allthings.size();i++)
-        {
-            RunnableCreatrue item=(RunnableCreatrue) allthings.get(i);
-            if (!item.dead)
-            {
-                g.drawImage(item.getImage(), item.getX(), item.getY(), GRIDWIDTH, GRIDHEIGHT, this);
-                if (state==BattleFieldState.RUN)
-                    screen.addReplayObject(item.kind,false,item.getX(),item.getY());
-            }
-            else
-            {
-                g.drawImage(item.getDeadimage(),item.getX(),item.getY(),GRIDWIDTH,GRIDHEIGHT,this);
-                if (state==BattleFieldState.RUN)
-                    screen.addReplayObject(item.kind,true,item.getX(),item.getY());
-            }
-        }
         if (state==BattleFieldState.RUN)
-            replayer.addScreen(screen);
+        {
+            ArrayList allthings = new ArrayList();
+            allthings.addAll(goodGroup);
+            allthings.addAll(badGroup);
+            for (int i = 0; i < allthings.size(); i++)
+            {
+                RunnableCreatrue item = (RunnableCreatrue) allthings.get(i);
+                if (!item.dead)
+                {
+                    g.drawImage(item.getImage(), item.getX(), item.getY(), GRIDWIDTH, GRIDHEIGHT, this);
+                    if (state == BattleFieldState.RUN) screen.addReplayObject(item.kind, false, item.getX(), item.getY());
+                } else
+                {
+                    g.drawImage(item.getDeadimage(), item.getX(), item.getY(), GRIDWIDTH, GRIDHEIGHT, this);
+                    if (state == BattleFieldState.RUN) screen.addReplayObject(item.kind, true, item.getX(), item.getY());
+                }
+            }
+            if (state == BattleFieldState.RUN) replayer.addScreen(screen);
+        }
     }
 
     @Override
@@ -354,7 +362,9 @@ public class BattleField extends JPanel
                 case KeyEvent.VK_R:
                 {
                     if (state==BattleFieldState.END)
-                        startBattle();
+                        //startBattle();
+                        state=BattleFieldState.PREPARE;
+                    replayer.removeAll();
                 }break;
             }
             repaint();

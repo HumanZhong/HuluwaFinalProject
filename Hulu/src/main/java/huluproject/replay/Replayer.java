@@ -16,6 +16,10 @@ public class Replayer
         this.result=result;
         screens=new ArrayList<>();
     }
+    public void removeAll()
+    {
+        screens.clear();
+    }
     public boolean getResult()
     {
         return result;

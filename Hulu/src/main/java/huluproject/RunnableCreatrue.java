@@ -60,6 +60,7 @@ public class RunnableCreatrue extends Picture2D implements Runnable
         ImageIcon deadimageIcon=new ImageIcon(deadimageurl);
         this.setImage(imageIcon.getImage());
         this.setDeadimage(deadimageIcon.getImage());
+        //dead=false;
     }
 
     public void moveTo(int delta_x,int delta_y)
@@ -179,7 +180,8 @@ public class RunnableCreatrue extends Picture2D implements Runnable
         }
         try
         {
-            TimeUnit.MILLISECONDS.sleep(1000);
+            if (field.state!=BattleFieldState.END)
+                TimeUnit.MILLISECONDS.sleep(1000);
         }
         catch (Exception ex)
         {
